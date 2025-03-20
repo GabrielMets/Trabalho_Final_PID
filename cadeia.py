@@ -4,50 +4,40 @@ import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
 
-def gerar_quadrado_binario(tamanho):
-    imagem = np.zeros((tamanho + 2, tamanho + 2), dtype=np.uint8)  # Adiciona borda
-    imagem[1:-1, 1:-1] = 1  # Preenche o quadrado com 1s2
-    return imagem
-
 
 def otsu_thresholding(image):
-    # Calcular o histograma da imagem
     hist, _ = np.histogram(image, bins=256, range=(0, 256))
     
-    # Normalizar o histograma para obter as probabilidades
     prob = hist / hist.sum()
     
-    # Inicializar variáveis para armazenar o melhor limiar e a máxima variância
     best_threshold = 0
     max_variance = 0
     
-    # Iterar sobre todos os possíveis limiares
     for threshold in range(256):
-        # Dividir os pixels em duas classes: fundo (C1) e primeiro plano (C2)
+        #dividir os pixels em duas classes: fundo (C1) e primeiro plano (C2)
         c1 = prob[:threshold]
         c2 = prob[threshold:]
         
-        # Calcular as probabilidades das classes
         w1 = c1.sum()
         w2 = c2.sum()
         
-        # Evitar divisão por zero
+        #evitar divisão por zero
         if w1 == 0 or w2 == 0:
             continue
         
-        # Calcular as médias das classes
+        #calcular as médias das classes
         mean1 = np.sum(np.arange(threshold) * c1) / w1
         mean2 = np.sum(np.arange(threshold, 256) * c2) / w2
         
-        # Calcular a variância interclasse
+        #calcular a variância interclasse
         variance = w1 * w2 * (mean1 - mean2) ** 2
         
-        # Atualizar o melhor limiar se a variância for maior
+        #if variance > max_variance = variance
         if variance > max_variance:
             max_variance = variance
             best_threshold = threshold
     
-    # Aplicar o limiar para binarizar a imagem
+    #binarisando
     _, binary_image = cv2.threshold(image, best_threshold, 255, cv2.THRESH_BINARY)
     
     return binary_image
@@ -82,40 +72,31 @@ def freeman_chain_code(binary_image):
 def load_image():
     file_path = filedialog.askopenfilename()
     if file_path:
-        image_original = cv2.imread(file_path) # Carrega a imagem original sem conversão para grayscale
-        image_original_resized = cv2.resize(image_original, (300, 300)) # Redimensiona para exibição
+        image_original = cv2.imread(file_path)
+        image_original_resized = cv2.resize(image_original, (300, 300))
 
-        # Carregar a imagem em escala de cinza
         image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
-        image = cv2.resize(image, (300, 300))  # Redimensionar para exibição
+        image = cv2.resize(image, (300, 300))
         
-        # Aplicar o Método de Otsu
         binary_image = otsu_thresholding(image)
        
-
         chains = freeman_chain_code(binary_image)
         
         for i, chain in enumerate(chains):
             print(f"Cadeia de Freeman para o objeto {i + 1}: {chain}")
 
-        
-        # Exibir a imagem original
-        img_original = Image.fromarray(cv2.cvtColor(image_original_resized, cv2.COLOR_BGR2RGB)) # Converte BGR para RGB para PIL
+        #exibir a imagem original
+        img_original = Image.fromarray(cv2.cvtColor(image_original_resized, cv2.COLOR_BGR2RGB))
         img_original = ImageTk.PhotoImage(img_original)
         panel_original.configure(image=img_original)
         panel_original.image = img_original
         
-        # Exibir a imagem binarizada e limpa
+        #exibir a imagem binarizada e limpa
         img_cleaned = Image.fromarray(binary_image)
         img_cleaned = ImageTk.PhotoImage(img_cleaned)
         panel_binary.configure(image=img_cleaned)
         panel_binary.image = img_cleaned
         
-        
-        
-        
-
-# Interface gráfica
 root = tk.Tk()
 root.title("Cadeia de Freeman")
 

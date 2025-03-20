@@ -124,7 +124,7 @@ def marr_hildreth(image, sigma): #Utiliza o Laplaciano do Gaussiano para detecta
     return zero_crossings
 
 
-#DIFF ENTRE ELES: Canny mais robusto a ruídos do que o Marr-Hildreth, Canny produz bordas mais precisas e finas e o marr_hildreth tende a produzir bordas fechadas.
+#DIFF ENTRE ELES: Canny mais robusto a ruídos do que o Marr-Hildreth, Canny produz bordas mais precisas e finas e o marr_hildreth tende a produzir bordas fechadas e aplica filtros na imagem.
 
 def load_image():
     file_path = filedialog.askopenfilename()
